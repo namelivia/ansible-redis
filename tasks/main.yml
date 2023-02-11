@@ -1,0 +1,24 @@
+---
+
+- name: 'Check mandatory variables are defined'
+  assert:
+    that:
+      - cloudwatch_region is defined
+      - cloudwatch_log_group is defined
+
+- name: Create container
+  docker_container:
+    name: "redis"
+    image: "redis:alpine"
+    restart_policy: "always"
+    cleanup: true
+    memory: "100MB"
+    exposed_ports:
+      - "6379"
+    networks:
+      - name: "{{ network_name }}"
+    log_driver: "awslogs"
+    log_options:
+      awslogs-region: "{{ cloudwatch_region }}"
+      awslogs-group: "{{ cloudwatch_log_group }}"
+      awslogs-stream: "redis"
